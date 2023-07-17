@@ -13,6 +13,13 @@ import GoalItem from "./components/GoalItem";
 import GoalInput from "./components/GoalInput";
 
 export default function App() {
+  const [modalIsVisible, setModalIsVisible] = useState(false);
+
+  // 할 일 추가 모달을 띄워주는 함수
+  const startAddGoalHandler = () => {
+    setModalIsVisible(true);
+  };
+
   // 사용자의 입력값 상태 관리 변수
   const [todoGoals, setTodoGoals] = useState([]);
 
@@ -24,7 +31,7 @@ export default function App() {
     // 그 콜백 함수의 매개값은 항상 해당 상태 변수의 최신 값이 전달됩니다.
     setTodoGoals((currentTodoGoals) => [
       ...currentTodoGoals,
-      { text: enteredGoalText, id: Math.random.toString() },
+      { text: enteredGoalText, id: Math.random().toString() },
     ]);
   };
 
@@ -37,7 +44,12 @@ export default function App() {
 
   return (
     <View style={styles.appContainer}>
-      <GoalInput onAddGoal={addGoalHandler} />
+      <Button
+        title='할 일 추가하기!'
+        color='#5e0acc'
+        onPress={startAddGoalHandler}
+      />
+      {modalIsVisible && <GoalInput onAddGoal={addGoalHandler} />}
       <View style={styles.goalContainer}>
         {/* ScrollView는 전체 화면이 렌더링 될 때 안의 항목들을 전부 렌더링 합니다.
             이로 인해, 성능의 저하가 발생할 수 있습니다.
@@ -50,11 +62,14 @@ export default function App() {
             return (
               <GoalItem
                 text={itemData.item.text}
+                id={itemData.item.id}
                 onDeleteItem={deleteGoalHandler}
               />
             );
           }}
           keyExtractor={(item, index) => {
+            // console.log("item: " + item);
+            // console.log("index: " + index);
             return item.id;
           }}
           alwaysBounceVertical={false}
