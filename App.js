@@ -11,13 +11,20 @@ import {
 
 import GoalItem from "./components/GoalItem";
 import GoalInput from "./components/GoalInput";
+import { StatusBar } from "expo-status-bar";
 
 export default function App() {
+  // 모달 상태변수 관리
   const [modalIsVisible, setModalIsVisible] = useState(false);
 
   // 할 일 추가 모달을 띄워주는 함수
   const startAddGoalHandler = () => {
     setModalIsVisible(true);
+  };
+
+  // 모달 끄기 함수
+  const endAddGoalHandler = () => {
+    setModalIsVisible(false);
   };
 
   // 사용자의 입력값 상태 관리 변수
@@ -33,6 +40,7 @@ export default function App() {
       ...currentTodoGoals,
       { text: enteredGoalText, id: Math.random().toString() },
     ]);
+    endAddGoalHandler();
   };
 
   const deleteGoalHandler = (id) => {
@@ -43,39 +51,47 @@ export default function App() {
   };
 
   return (
-    <View style={styles.appContainer}>
-      <Button
-        title='할 일 추가하기!'
-        color='#5e0acc'
-        onPress={startAddGoalHandler}
-      />
-      {modalIsVisible && <GoalInput onAddGoal={addGoalHandler} />}
-      <View style={styles.goalContainer}>
-        {/* ScrollView는 전체 화면이 렌더링 될 때 안의 항목들을 전부 렌더링 합니다.
+    <>
+      <StatusBar style='light' />
+      <View style={styles.appContainer}>
+        <Button
+          title='할 일 추가하기!'
+          color='#5e0acc'
+          onPress={startAddGoalHandler}
+        />
+        {/* {modalIsVisible && <GoalInput onAddGoal={addGoalHandler} />} */}
+        <GoalInput
+          visible={modalIsVisible}
+          onAddGoal={addGoalHandler}
+          onCancel={endAddGoalHandler}
+        />
+        <View style={styles.goalContainer}>
+          {/* ScrollView는 전체 화면이 렌더링 될 때 안의 항목들을 전부 렌더링 합니다.
             이로 인해, 성능의 저하가 발생할 수 있습니다.
             (보이지 않는 영역까지 렌더링을 진행하기 때문에 목록이 많다면 로딩이 길어짐.)
             FlatList는 보이는 영역만 일단 렌더링을 진행하고, 나머지 항목들은 스크롤이 움직임이
             발생하면 렌더링을 진행합니다. */}
-        <FlatList
-          data={todoGoals}
-          renderItem={(itemData) => {
-            return (
-              <GoalItem
-                text={itemData.item.text}
-                id={itemData.item.id}
-                onDeleteItem={deleteGoalHandler}
-              />
-            );
-          }}
-          keyExtractor={(item, index) => {
-            // console.log("item: " + item);
-            // console.log("index: " + index);
-            return item.id;
-          }}
-          alwaysBounceVertical={false}
-        ></FlatList>
+          <FlatList
+            data={todoGoals}
+            renderItem={(itemData) => {
+              return (
+                <GoalItem
+                  text={itemData.item.text}
+                  id={itemData.item.id}
+                  onDeleteItem={deleteGoalHandler}
+                />
+              );
+            }}
+            keyExtractor={(item, index) => {
+              // console.log("item: " + item);
+              // console.log("index: " + index);
+              return item.id;
+            }}
+            alwaysBounceVertical={false}
+          ></FlatList>
+        </View>
       </View>
-    </View>
+    </>
   );
 }
 
@@ -83,11 +99,11 @@ export default function App() {
 // 공통된 디자인을 묶어서 쓰면 좋음
 const styles = StyleSheet.create({
   appContainer: {
+    flex: 1,
     paddingTop: 50,
     paddingHorizontal: 16, // 좌우 패딩 동시 지정
-    flex: 1,
+    // backgroundColor: "#1e085a",
   },
-
   goalContainer: {
     flex: 4,
   },
